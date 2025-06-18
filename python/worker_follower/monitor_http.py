@@ -1,9 +1,12 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # esto es para que funcione en python/worker_follower
-MODELS_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../models"))
-PORT = 8080
+PORT = 8080  # Puerto del servidor HTTP (no del TCP follower)
+FOLLOWER_PORT = 6000  # Puerto del worker follower que monitorea
+
+# Carpeta de modelos de este nodo
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.abspath(os.path.join(BASE_DIR, f"../../models_{FOLLOWER_PORT}"))
 
 class ModelMonitorHandler(BaseHTTPRequestHandler):
     def do_GET(self):
@@ -13,7 +16,7 @@ class ModelMonitorHandler(BaseHTTPRequestHandler):
             self.end_headers()
 
             html = "<html><head><title>Modelos Replicados</title></head><body>"
-            html += "<h2>Modelos disponibles en el follower</h2><ul>"
+            html += f"<h2>Modelos disponibles en el follower (Puerto {FOLLOWER_PORT})</h2><ul>"
 
             try:
                 for fname in os.listdir(MODELS_DIR):
@@ -32,8 +35,7 @@ class ModelMonitorHandler(BaseHTTPRequestHandler):
             self.send_error(404)
 
 def run_server():
-    print(f"Servidor HTTP corriendo en http://localhost:{PORT}/")
-    # os.chdir(".")  # en caso MODELS_DIR esté fuera del scope directo
+    print(f"Servidor HTTP de monitoreo en http://localhost:{PORT}/")
     server_address = ('', PORT)
     httpd = HTTPServer(server_address, ModelMonitorHandler)
     httpd.serve_forever()
