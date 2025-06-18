@@ -29,11 +29,27 @@ public class WorkerTCPServer {
             String request = in.readLine();
             System.out.println("Mensaje recibido: " + request);
 
-            if ("ENTRENAMIENTO".equalsIgnoreCase(request)) {
-                //simulamos los datos
+            if (request.startsWith("ENTRENAMIENTO")) {
                 double[] x = {1.0, 2.0};
-                double[] y = {3.0, 4.0};
-                
+                double[] y = {3.0, 4.0}; // valores por defecto
+
+                // Intentar parsear valores si vienen incluidos
+                if (request.contains(":")) {
+                    try {
+                        String payload = request.split(":")[1].trim(); // x1,x2;y1,y2
+                        String[] partes = payload.split(";");
+                        String[] xVals = partes[0].split(",");
+                        String[] yVals = partes[1].split(",");
+
+                        x[0] = Double.parseDouble(xVals[0]);
+                        x[1] = Double.parseDouble(xVals[1]);
+                        y[0] = Double.parseDouble(yVals[0]);
+                        y[1] = Double.parseDouble(yVals[1]);
+                    } catch (Exception e) {
+                        System.err.println("⚠️ Error al parsear datos. Usando valores dummy.");
+                    }
+                }
+
                 String modelId = IAEngine.entrenarModelDummy(x, y);
                 if (modelId != null) {
                     ReplicatorRaft.replicarModelo(modelId);
