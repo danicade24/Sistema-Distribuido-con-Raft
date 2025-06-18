@@ -1,7 +1,7 @@
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 
-BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # esto da: python/worker_follower
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))  # esto es para que funcione en python/worker_follower
 MODELS_DIR = os.path.abspath(os.path.join(BASE_DIR, "../../models"))
 PORT = 8080
 

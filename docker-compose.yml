@@ -1,0 +1,13 @@
+version: '3.8'
+
+services:
+  leader:
+    build: ./java/worker_leader
+    ports:
+      - "5000:5000"
+
+  follower:
+    build: ./python/worker_follower
+    ports:
+      - "6000:6000"
+      - "8080:8080"

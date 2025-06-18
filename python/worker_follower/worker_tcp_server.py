@@ -1,32 +1,46 @@
 import socket
 import threading
 import os
+import sys
 
-MODELS_DIR = "../../models"
+PORT = 6000  # puerto que debe coincidir con FOLLOWERS en Java
+MODEL_DIR = f"models_{PORT}"  # cada follower tiene su propia carpeta
+
+os.makedirs(MODEL_DIR, exist_ok=True)
 
 def handle_client(conn, addr):
-    print(f"Conexión recibida de {addr}")
+    print(f"Conexión de {addr}")
     try:
-        data = conn.recv(1024).decode().strip()
+        data = conn.recv(4096).decode().strip()
         print(f"Mensaje recibido: {data}")
 
-        if data.startswith("REPLICACION:"):
-            model_id = data.split(":")[1]
-            content = conn.recv(4096).decode()
-            os.makedirs(MODELS_DIR, exist_ok=True)
-            with open(f"{MODELS_DIR}/model_{model_id}.txt", "w") as f:
-                f.write(content)
-            conn.sendall(f"REPLICACION_OK:{model_id}\n".encode())
+        if data.startswith("REPLICA:"):
+            try:
+                model_id, contenido = data[8:].split(";", 1)
+                model_id = model_id.strip()
+                contenido = contenido.replace("\\n", "\n")
+
+                file_path = os.path.join(MODEL_DIR, f"model_{model_id}.txt")
+                with open(file_path, "w") as f:
+                    f.write(contenido)
+
+                print(f"Modelo replicado y guardado: {file_path}")
+                sys.stdout.flush()
+                conn.sendall(b"REPLICA_OK\n")
+            except Exception as e:
+                print(f"Error procesando REPLICA: {e}")
+                conn.sendall(b"REPLICA_FAIL\n")
         else:
-            conn.sendall("COMANDO_DESCONOCIDO\n".encode())
+            conn.sendall(b"COMANDO_DESCONOCIDO\n")
 
     except Exception as e:
-        print(f"Error: {e}")
+        print(f"Error general: {e}")
     finally:
         conn.close()
+    
 
-def start_server(host='0.0.0.0', port=6000):
-    print(f"WorkerFollower escuchando en {host}:{port}")
+def start_server(host='localhost', port=PORT):
+    print(f"Worker follower Python escuchando en {host}:{port}")
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((host, port))
         s.listen()

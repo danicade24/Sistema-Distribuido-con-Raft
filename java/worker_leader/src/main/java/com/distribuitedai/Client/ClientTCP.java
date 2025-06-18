@@ -28,7 +28,7 @@ public class ClientTCP {
         scanner.close();
 
         String host = "localhost";
-        int port = 5000;
+        int port = 4000;
 
         try (Socket socket = new Socket(host, port);
              BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
