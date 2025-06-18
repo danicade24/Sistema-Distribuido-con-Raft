@@ -42,6 +42,23 @@ public class WorkerTCPServer {
                     out.write("Error al entrenar el modelo.\n");
                 }
                 out.flush();
+            } else if (request.startsWith("CONSULTA:")) {
+                String modelId = request.split(":")[1].trim();
+                File modelFile = new File("models/model_" + modelId + ".txt");
+
+                if (modelFile.exists()) {
+                    BufferedReader reader = new BufferedReader(new FileReader(modelFile));
+                    StringBuilder contenido = new StringBuilder();
+                    String line;
+                    while ((line = reader.readLine()) != null) {
+                        contenido.append(line).append("\n");
+                    }
+                    reader.close();
+                    out.write("CONSULTA_OK:\n" + contenido + "\n");
+                } else {
+                    out.write("CONSULTA_FAIL: Modelo no encontrado\n");
+                }
+                out.flush();
             } else {
                 out.write("COMANDO_DESCONOCIDO\n");
                 out.flush();

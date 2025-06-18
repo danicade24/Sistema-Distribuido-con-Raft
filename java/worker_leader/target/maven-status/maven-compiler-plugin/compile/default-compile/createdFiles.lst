@@ -1,0 +1,5 @@
+com/distribuitedai/Client/ClientTCP.class
+com/distribuitedai/server/WorkerTCPServer.class
+com/distribuitedai/server/ReplicatorRaft.class
+com/distribuitedai/Main.class
+com/distribuitedai/ai/IAEngine.class
