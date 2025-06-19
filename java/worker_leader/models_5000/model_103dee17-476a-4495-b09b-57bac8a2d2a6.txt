@@ -1,0 +1,3 @@
+Modelo Dummy - Regresion Lineal
+Pendiente: -1.0
+Intercepto: 2.0
